@@ -1,4 +1,3 @@
-import React from 'react';
 import { AnalyserNodeData } from './data';
 
 export const AnalyserControls = ({ node, registerCanvas }: { node: AnalyserNodeData, registerCanvas: (id: string, el: HTMLCanvasElement | null) => void }) => (

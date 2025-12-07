@@ -1,4 +1,3 @@
-import React from 'react';
 import { OscillatorNodeData } from './data';
 
 export const OscillatorControls = ({ node, onUpdate }: { node: OscillatorNodeData, onUpdate: (id: string, params: any) => void }) => (

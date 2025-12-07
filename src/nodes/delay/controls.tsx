@@ -1,4 +1,3 @@
-import React from 'react';
 import { DelayNodeData } from './data';
 
 export const DelayControls = ({ node, onUpdate }: { node: DelayNodeData, onUpdate: (id: string, params: any) => void }) => (

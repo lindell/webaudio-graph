@@ -1,4 +1,3 @@
-import React from 'react';
 import { PannerNodeData } from './data';
 
 export const PannerControls = ({ node, onUpdate }: { node: PannerNodeData, onUpdate: (id: string, params: any) => void }) => (

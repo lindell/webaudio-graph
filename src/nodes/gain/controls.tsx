@@ -1,4 +1,3 @@
-import React from 'react';
 import { GainNodeData } from './data';
 
 export const GainControls = ({ node, onUpdate }: { node: GainNodeData, onUpdate: (id: string, params: any) => void }) => (
