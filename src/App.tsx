@@ -31,8 +31,8 @@ export default function AudioGraph() {
   const [engine] = useState(() => new AudioEngine());
   const [isEngineStarted, setIsEngineStarted] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
-  const analyserCanvasRefs = useRef<Map<string, HTMLCanvasElement>>(new Map());
-  const animationFrameRef = useRef<number>();
+
+
 
 
 
@@ -52,28 +52,14 @@ export default function AudioGraph() {
   const [loadString, setLoadString] = useState('');
   const [showCopiedToast, setShowCopiedToast] = useState(false);
 
-  // Visualization Loop
-  const drawVisualizers = () => {
-    if (!isEngineStarted) return;
-    nodesRef.current.forEach(node => {
-      if (node instanceof AnalyserNodeData) {
-        const canvas = analyserCanvasRefs.current.get(node.id);
-        if (canvas) {
-          node.draw(canvas, engine);
-        }
-      }
-    });
-    animationFrameRef.current = requestAnimationFrame(drawVisualizers);
-  };
+
 
   useEffect(() => {
     if (isEngineStarted) {
       // Find destination node to start graph
       const destNode = nodesRef.current.find(n => n.type === 'destination');
       if (destNode) engine.createNode(destNode);
-      drawVisualizers();
     }
-    return () => { if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current); };
   }, [isEngineStarted]);
 
   const startEngine = () => {
@@ -123,7 +109,6 @@ export default function AudioGraph() {
     // Mutate remove
     nodesRef.current = nodesRef.current.filter(n => n.id !== id);
     engine.removeNode(id);
-    analyserCanvasRefs.current.delete(id);
     forceUpdate();
   };
 
@@ -271,7 +256,7 @@ export default function AudioGraph() {
             {node instanceof GainNodeData && <GainControls node={node} onUpdate={updateParam} />}
             {node instanceof DelayNodeData && <DelayControls node={node} onUpdate={updateParam} />}
             {node instanceof PannerNodeData && <PannerControls node={node} onUpdate={updateParam} />}
-            {node instanceof AnalyserNodeData && <AnalyserControls node={node} registerCanvas={(id: any, el: any) => el ? analyserCanvasRefs.current.set(id, el) : analyserCanvasRefs.current.delete(id)} />}
+            {node instanceof AnalyserNodeData && <AnalyserControls node={node} />}
             {node instanceof WorkletNodeData && <WorkletControls node={node} onUpdate={updateParam} onCompile={updateWorkletCode} />}
             {node instanceof DestinationNodeData && <DestinationControls />}
           </NodeShell>
