@@ -15,7 +15,7 @@ export class AnalyserNodeData extends BaseNode {
 
     createAudioNode(ctx: AudioContext): AudioNode {
         const a = ctx.createAnalyser();
-        a.fftSize = 2048;
+        a.fftSize = 512;
         this.audioNode = a;
         return a;
     }
