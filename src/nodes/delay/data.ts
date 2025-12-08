@@ -6,6 +6,10 @@ export class DelayNodeData extends BaseNode {
 
     constructor(id: string, x: number, y: number, public delayTime: number = 0.3) { super(id, x, y); }
 
+    static fromJSON(data: any): DelayNodeData {
+        return new DelayNodeData(data.id, data.x, data.y, data.delayTime);
+    }
+
     createAudioNode(ctx: AudioContext): AudioNode {
         const d = ctx.createDelay(5.0);
         d.delayTime.value = this.delayTime;

@@ -12,6 +12,10 @@ export class PannerNodeData extends BaseNode {
         public panningModel: PanningModelType = 'HRTF'
     ) { super(id, x, y); }
 
+    static fromJSON(data: any): PannerNodeData {
+        return new PannerNodeData(data.id, data.x, data.y, data.positionX, data.positionY, data.positionZ, data.panningModel);
+    }
+
     createAudioNode(ctx: AudioContext): AudioNode {
         const p = ctx.createPanner();
         p.panningModel = this.panningModel;

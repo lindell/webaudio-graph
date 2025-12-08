@@ -7,6 +7,10 @@ export class AnalyserNodeData extends BaseNode {
 
     constructor(id: string, x: number, y: number) { super(id, x, y); }
 
+    static fromJSON(data: any): AnalyserNodeData {
+        return new AnalyserNodeData(data.id, data.x, data.y);
+    }
+
     createAudioNode(ctx: AudioContext, engine: IAudioEngine): AudioNode {
         const a = ctx.createAnalyser();
         a.fftSize = 2048;

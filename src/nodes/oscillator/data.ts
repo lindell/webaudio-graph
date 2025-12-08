@@ -10,6 +10,10 @@ export class OscillatorNodeData extends BaseNode {
         public waveType: OscillatorType = 'sine'
     ) { super(id, x, y); }
 
+    static fromJSON(data: any): OscillatorNodeData {
+        return new OscillatorNodeData(data.id, data.x, data.y, data.frequency, data.waveType);
+    }
+
     createAudioNode(ctx: AudioContext): AudioNode {
         const osc = ctx.createOscillator();
         osc.type = this.waveType;

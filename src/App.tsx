@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Play, Activity, Volume2, Sliders, Globe, BarChart3, Cpu } from 'lucide-react';
+import { Play, Activity, Volume2, Sliders, Globe, BarChart3, Cpu, Upload, X, Copy, Check } from 'lucide-react';
 
 import { NodeType, Connection } from './types';
 import { AudioEngine } from './AudioEngine';
@@ -20,6 +20,7 @@ import { WorkletNodeData, DEFAULT_WORKLET_CODE } from './nodes/worklet/data';
 import { WorkletControls } from './nodes/worklet/controls';
 import { DestinationNodeData } from './nodes/destination/data';
 import { DestinationControls } from './nodes/destination/controls';
+import { serialize, deserialize } from './serialization';
 
 const HEADER_HEIGHT = 40;
 const NODE_WIDTH = 220;
@@ -45,6 +46,10 @@ export default function AudioGraph() {
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [drawingWire, setDrawingWire] = useState<{ startNodeId: string, currentX: number, currentY: number } | null>(null);
+
+  const [showLoadModal, setShowLoadModal] = useState(false);
+  const [loadString, setLoadString] = useState('');
+  const [showCopiedToast, setShowCopiedToast] = useState(false);
 
   // Visualization Loop
   const drawVisualizers = () => {
@@ -205,6 +210,39 @@ export default function AudioGraph() {
     setConnections(prev => prev.filter(c => c.id !== conn.id));
   };
 
+  const handleSave = async () => {
+    const json = serialize(nodesRef.current, connections);
+    try {
+      await navigator.clipboard.writeText(json);
+      setShowCopiedToast(true);
+      setTimeout(() => setShowCopiedToast(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy', err);
+    }
+  };
+
+  const handleLoadSubmit = () => {
+    if (!loadString) return;
+    try {
+      const { nodes, connections: newConnections } = deserialize(loadString);
+
+      setIsEngineStarted(false);
+      engine.ctx?.suspend();
+      nodesRef.current.forEach(n => engine.removeNode(n.id));
+      setConnections([]);
+
+      nodesRef.current = nodes;
+      setConnections(newConnections);
+
+      forceUpdate();
+      setShowLoadModal(false);
+      setLoadString('');
+    } catch (err) {
+      console.error("Failed to load graph", err);
+      alert("Failed to parse JSON");
+    }
+  };
+
   const getPortPos = (nodeId: string, isInput: boolean) => {
     const node = nodesRef.current.find(n => n.id === nodeId);
     if (!node) return { x: 0, y: 0 };
@@ -217,6 +255,15 @@ export default function AudioGraph() {
       <div className="h-16 bg-slate-900 border-b border-slate-800 flex items-center px-4 justify-between z-50 shadow-lg">
         <div className="flex items-center gap-2"><div className="bg-indigo-600 p-2 rounded-lg"><Activity className="w-6 h-6 text-white" /></div><h1 className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">WebAudio Graph</h1></div>
         <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 mr-4">
+            <button onClick={handleSave} className="text-slate-400 hover:text-white transition-colors relative" title="Copy State to Clipboard">
+              {showCopiedToast ? <Check size={20} className="text-green-500" /> : <Copy size={20} />}
+              {showCopiedToast && <span className="absolute top-full left-1/2 -translate-x-1/2 mt-1 text-[10px] bg-green-600 text-white px-1 rounded">Copied</span>}
+            </button>
+            <button onClick={() => setShowLoadModal(true)} className="text-slate-400 hover:text-white transition-colors" title="Load State">
+              <Upload size={20} />
+            </button>
+          </div>
           {!isEngineStarted && <button onClick={startEngine} className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-500 text-white rounded-full font-bold shadow-[0_0_15px_rgba(34,197,94,0.5)] transition-all animate-pulse"><Play size={18} /> Start Engine</button>}
           <div className="h-8 w-px bg-slate-700 mx-2" />
           <button onClick={() => addNode('oscillator')} className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-md border border-slate-700 transition-colors text-sm"><Activity size={16} className="text-emerald-400" /> Osc</button>
@@ -253,6 +300,28 @@ export default function AudioGraph() {
           </NodeShell>
         ))}
       </div>
+
+      {showLoadModal && (
+        <div className="absolute inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl w-full max-w-2xl p-6 flex flex-col gap-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-bold text-white">Load Graph State</h3>
+              <button onClick={() => setShowLoadModal(false)} className="text-slate-400 hover:text-white"><X size={24} /></button>
+            </div>
+            <p className="text-slate-400 text-sm">Paste the JSON string below to restore a previous session.</p>
+            <textarea
+              className="w-full h-64 bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-xs text-slate-300 focus:outline-none focus:border-indigo-500 resize-none"
+              placeholder='{"nodes": [...], "connections": [...]}'
+              value={loadString}
+              onChange={(e) => setLoadString(e.target.value)}
+            />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setShowLoadModal(false)} className="px-4 py-2 text-slate-300 hover:text-white font-semibold">Cancel</button>
+              <button onClick={handleLoadSubmit} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold shadow-lg shadow-indigo-500/20">Import State</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
