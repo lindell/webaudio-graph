@@ -8,7 +8,7 @@ interface SerializedGraph {
 }
 
 export const serialize = (nodes: BaseNode[], connections: Connection[]): string => {
-    return JSON.stringify({ nodes, connections }, null, 2);
+    return JSON.stringify({ nodes, connections });
 };
 
 export const deserialize = (json: string): { nodes: BaseNode[], connections: Connection[] } => {
