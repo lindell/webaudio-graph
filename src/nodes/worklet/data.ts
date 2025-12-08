@@ -13,13 +13,16 @@ export const DEFAULT_WORKLET_CODE = `process(inputs, outputs, parameters) {
 
 export class WorkletNodeData extends BaseNode {
   readonly type = 'worklet';
+  static readonly type = 'worklet';
   readonly label = 'Worklet';
 
   constructor(
     id: string, x: number, y: number,
     public code: string = DEFAULT_WORKLET_CODE,
     public codeVersion: number = 0
-  ) { super(id, x, y); }
+  ) {
+    super(id, x, y);
+  }
 
   static fromJSON(data: any): WorkletNodeData {
     return new WorkletNodeData(data.id, data.x, data.y, data.code, data.codeVersion);

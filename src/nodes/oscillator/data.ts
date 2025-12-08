@@ -2,6 +2,7 @@ import { BaseNode } from '../BaseNode';
 
 export class OscillatorNodeData extends BaseNode {
     readonly type = 'oscillator';
+    static readonly type = 'oscillator';
     readonly label = 'Oscillator';
 
     constructor(

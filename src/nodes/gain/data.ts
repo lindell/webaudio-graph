@@ -1,7 +1,9 @@
+
 import { BaseNode } from '../BaseNode';
 
 export class GainNodeData extends BaseNode {
     readonly type = 'gain';
+    static readonly type = 'gain';
     readonly label = 'Gain';
 
     constructor(id: string, x: number, y: number, public gain: number = 0.5) { super(id, x, y); }

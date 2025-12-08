@@ -4,7 +4,6 @@ import { IAudioEngine } from './types';
 export class AudioEngine implements IAudioEngine {
     ctx: AudioContext | null = null;
     nodes: Map<string, AudioNode> = new Map();
-    analyserBuffers: Map<string, Uint8Array> = new Map();
 
     init() {
         if (!this.ctx) {
@@ -49,14 +48,8 @@ export class AudioEngine implements IAudioEngine {
         if (audioNode) data.updateAudioParam(this.ctx, audioNode, params);
     }
 
-    getAnalyserData(id: string): Uint8Array | null {
-        const node = this.nodes.get(id);
-        const buffer = this.analyserBuffers.get(id);
-        if (node instanceof AnalyserNode && buffer) {
-            node.getByteFrequencyData(buffer as any);
-            return buffer;
-        }
-        return null;
+    getNode(id: string): AudioNode | undefined {
+        return this.nodes.get(id);
     }
 
     connect(fromId: string, toId: string) {
@@ -77,7 +70,6 @@ export class AudioEngine implements IAudioEngine {
             node.disconnect();
             if (node instanceof OscillatorNode) try { node.stop(); } catch (e) { }
             this.nodes.delete(id);
-            this.analyserBuffers.delete(id);
         }
     }
 }

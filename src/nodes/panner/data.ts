@@ -2,6 +2,7 @@ import { BaseNode } from '../BaseNode';
 
 export class PannerNodeData extends BaseNode {
     readonly type = 'panner';
+    static readonly type = 'panner';
     readonly label = 'Spatial Pan';
 
     constructor(

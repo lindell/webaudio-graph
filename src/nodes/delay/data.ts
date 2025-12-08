@@ -2,6 +2,7 @@ import { BaseNode } from '../BaseNode';
 
 export class DelayNodeData extends BaseNode {
     readonly type = 'delay';
+    static readonly type = 'delay';
     readonly label = 'Delay';
 
     constructor(id: string, x: number, y: number, public delayTime: number = 0.3) { super(id, x, y); }

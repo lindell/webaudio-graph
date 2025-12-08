@@ -16,11 +16,12 @@ import { PannerNodeData } from './nodes/panner/data';
 import { PannerControls } from './nodes/panner/controls';
 import { AnalyserNodeData } from './nodes/analyser/data';
 import { AnalyserControls } from './nodes/analyser/controls';
-import { WorkletNodeData, DEFAULT_WORKLET_CODE } from './nodes/worklet/data';
+import { WorkletNodeData } from './nodes/worklet/data';
 import { WorkletControls } from './nodes/worklet/controls';
 import { DestinationNodeData } from './nodes/destination/data';
 import { DestinationControls } from './nodes/destination/controls';
 import { serialize, deserialize } from './serialization';
+import { NODE_REGISTRY } from './nodes/registry';
 
 const HEADER_HEIGHT = 40;
 const NODE_WIDTH = 220;
@@ -33,7 +34,7 @@ export default function AudioGraph() {
   const analyserCanvasRefs = useRef<Map<string, HTMLCanvasElement>>(new Map());
   const animationFrameRef = useRef<number>();
 
-  const [editingCode, setEditingCode] = useState<{ [id: string]: string }>({});
+
 
   // 1. Mutable Source of Truth
   const nodesRef = useRef<BaseNode[]>([new DestinationNodeData('dest', 800, 300)]);
@@ -58,23 +59,7 @@ export default function AudioGraph() {
       if (node instanceof AnalyserNodeData) {
         const canvas = analyserCanvasRefs.current.get(node.id);
         if (canvas) {
-          const ctx = canvas.getContext('2d');
-          const data = engine.getAnalyserData(node.id);
-          if (ctx && data) {
-            const width = canvas.width;
-            const height = canvas.height;
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(0, 0, width, height);
-            const barWidth = (width / data.length) * 2.5;
-            let barX = 0;
-            for (let i = 0; i < data.length; i++) {
-              const barHeight = (data[i] / 255) * height;
-              ctx.fillStyle = `rgb(${barHeight + 50}, ${255 - barHeight}, 150)`;
-              ctx.fillRect(barX, height - barHeight, barWidth, barHeight);
-              barX += barWidth + 1;
-              if (barX > width) break;
-            }
-          }
+          node.draw(canvas, engine);
         }
       }
     });
@@ -103,16 +88,10 @@ export default function AudioGraph() {
     const x = 100 + Math.random() * 200;
     const y = 100 + Math.random() * 200;
 
-    let newNode: BaseNode;
-    switch (type) {
-      case 'oscillator': newNode = new OscillatorNodeData(id, x, y); break;
-      case 'gain': newNode = new GainNodeData(id, x, y); break;
-      case 'delay': newNode = new DelayNodeData(id, x, y); break;
-      case 'panner': newNode = new PannerNodeData(id, x, y); break;
-      case 'analyser': newNode = new AnalyserNodeData(id, x, y); break;
-      case 'worklet': newNode = new WorkletNodeData(id, x, y); setEditingCode(prev => ({ ...prev, [id]: DEFAULT_WORKLET_CODE })); break;
-      default: return;
-    }
+    const NodeClass = NODE_REGISTRY[type];
+    if (!NodeClass) return;
+
+    const newNode = new NodeClass(id, x, y);
 
     nodesRef.current.push(newNode);
     if (isEngineStarted) engine.createNode(newNode);
@@ -120,12 +99,10 @@ export default function AudioGraph() {
   };
 
   const updateWorkletCode = async (id: string) => {
-    const code = editingCode[id];
     const node = nodesRef.current.find(n => n.id === id);
-    if (!(node instanceof WorkletNodeData) || !code) return;
+    if (!(node instanceof WorkletNodeData)) return;
 
     // Mutate
-    node.code = code;
     node.codeVersion += 1;
 
     await engine.createNode(node);
@@ -295,7 +272,7 @@ export default function AudioGraph() {
             {node instanceof DelayNodeData && <DelayControls node={node} onUpdate={updateParam} />}
             {node instanceof PannerNodeData && <PannerControls node={node} onUpdate={updateParam} />}
             {node instanceof AnalyserNodeData && <AnalyserControls node={node} registerCanvas={(id: any, el: any) => el ? analyserCanvasRefs.current.set(id, el) : analyserCanvasRefs.current.delete(id)} />}
-            {node instanceof WorkletNodeData && <WorkletControls node={node} editingCode={editingCode} setEditingCode={setEditingCode} onCompile={updateWorkletCode} />}
+            {node instanceof WorkletNodeData && <WorkletControls node={node} onUpdate={updateParam} onCompile={updateWorkletCode} />}
             {node instanceof DestinationNodeData && <DestinationControls />}
           </NodeShell>
         ))}

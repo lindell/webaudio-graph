@@ -7,5 +7,5 @@ export interface Connection {
 }
 
 export interface IAudioEngine {
-    analyserBuffers: Map<string, Uint8Array>;
+    getNode(id: string): AudioNode | undefined;
 }
