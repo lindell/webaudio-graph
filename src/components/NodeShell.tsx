@@ -34,7 +34,7 @@ export const NodeShell: React.FC<NodeShellProps> = ({ node, children, onDelete, 
                 <div className="flex items-center gap-2 text-white font-semibold text-xs uppercase tracking-wider"><Icon size={14} /> {node.label}</div>
                 {node.type !== 'destination' && <button onMouseDown={(e) => { e.stopPropagation(); onDelete(node.id); }} className="text-white/50 hover:text-white transition-colors"><Trash2 size={14} /></button>}
             </div>
-            {node.type !== 'oscillator' && <div className="absolute left-[-8px] top-3 w-4 h-4 bg-slate-300 border-2 border-slate-600 rounded-full cursor-crosshair hover:scale-125 transition-transform hover:bg-blue-400 z-30" onMouseUp={(e) => onEndWire(e, node.id)} title="Input" />}
+            {node.type !== 'oscillator' && node.type !== 'media' && <div className="absolute left-[-8px] top-3 w-4 h-4 bg-slate-300 border-2 border-slate-600 rounded-full cursor-crosshair hover:scale-125 transition-transform hover:bg-blue-400 z-30" onMouseUp={(e) => onEndWire(e, node.id)} title="Input" />}
             {node.type !== 'destination' && <div className="absolute right-[-8px] top-3 w-4 h-4 bg-slate-300 border-2 border-slate-600 rounded-full cursor-crosshair hover:scale-125 transition-transform hover:bg-green-400 z-30" onMouseDown={(e) => onStartWire(e, node.id)} title="Output" />}
             <div className="p-3 space-y-3 text-xs">{children}</div>
         </div>

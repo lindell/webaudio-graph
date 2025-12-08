@@ -1,4 +1,4 @@
-export type NodeType = 'oscillator' | 'gain' | 'delay' | 'panner' | 'analyser' | 'worklet' | 'destination';
+export type NodeType = 'oscillator' | 'gain' | 'delay' | 'panner' | 'analyser' | 'worklet' | 'media' | 'destination';
 
 export interface Connection {
     id: string;

@@ -6,14 +6,17 @@ import { AnalyserNodeData } from './analyser/data';
 import { WorkletNodeData } from './worklet/data';
 import { DestinationNodeData } from './destination/data';
 
-export const NODE_REGISTRY = {
-    [OscillatorNodeData.type]: OscillatorNodeData,
-    [GainNodeData.type]: GainNodeData,
-    [DelayNodeData.type]: DelayNodeData,
-    [PannerNodeData.type]: PannerNodeData,
-    [AnalyserNodeData.type]: AnalyserNodeData,
-    [WorkletNodeData.type]: WorkletNodeData,
-    [DestinationNodeData.type]: DestinationNodeData,
+import { MediaNodeData } from './media/data';
+
+export const NODE_REGISTRY: Record<string, any> = {
+    'oscillator': OscillatorNodeData,
+    'gain': GainNodeData,
+    'delay': DelayNodeData,
+    'panner': PannerNodeData,
+    'analyser': AnalyserNodeData,
+    'worklet': WorkletNodeData,
+    'media': MediaNodeData,
+    'destination': DestinationNodeData
 };
 
 export type NodeType = keyof typeof NODE_REGISTRY;

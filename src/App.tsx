@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Play, Activity, Volume2, Sliders, Globe, BarChart3, Cpu, Upload, X, Copy, Check } from 'lucide-react';
+import { Play, Activity, Volume2, Sliders, Globe, BarChart3, Cpu, Upload, X, Copy, Check, Music } from 'lucide-react';
 
 import { NodeType, Connection } from './types';
 import { AudioEngine } from './AudioEngine';
@@ -20,6 +20,8 @@ import { WorkletNodeData } from './nodes/worklet/data';
 import { WorkletControls } from './nodes/worklet/controls';
 import { DestinationNodeData } from './nodes/destination/data';
 import { DestinationControls } from './nodes/destination/controls';
+import { MediaNodeData } from './nodes/media/data';
+import { MediaControls } from './nodes/media/controls';
 import { serialize, deserialize } from './serialization';
 import { NODE_REGISTRY } from './nodes/registry';
 
@@ -233,6 +235,7 @@ export default function AudioGraph() {
           <button onClick={() => addNode('delay')} className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-md border border-slate-700 transition-colors text-sm"><Sliders size={16} className="text-purple-400" /> Delay</button>
           <button onClick={() => addNode('panner')} className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-md border border-slate-700 transition-colors text-sm"><Globe size={16} className="text-cyan-400" /> Spatial</button>
           <button onClick={() => addNode('analyser')} className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-md border border-slate-700 transition-colors text-sm"><BarChart3 size={16} className="text-orange-400" /> Analyser</button>
+          <button onClick={() => addNode('media')} className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-md border border-slate-700 transition-colors text-sm"><Music size={16} className="text-red-400" /> Media</button>
           <button onClick={() => addNode('worklet')} className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-md border border-slate-700 transition-colors text-sm"><Cpu size={16} className="text-pink-400" /> Worklet</button>
         </div>
       </div>
@@ -257,6 +260,7 @@ export default function AudioGraph() {
             {node instanceof DelayNodeData && <DelayControls node={node} onUpdate={updateParam} />}
             {node instanceof PannerNodeData && <PannerControls node={node} onUpdate={updateParam} />}
             {node instanceof AnalyserNodeData && <AnalyserControls node={node} />}
+            {node instanceof MediaNodeData && <MediaControls node={node} onUpdate={updateParam} />}
             {node instanceof WorkletNodeData && <WorkletControls node={node} onUpdate={updateParam} onCompile={updateWorkletCode} />}
             {node instanceof DestinationNodeData && <DestinationControls />}
           </NodeShell>
